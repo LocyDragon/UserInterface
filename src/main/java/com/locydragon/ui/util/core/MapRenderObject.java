@@ -10,6 +10,7 @@ import com.locydragon.ui.util.MapInterface;
 import com.locydragon.ui.util.Schedulers;
 import com.locydragon.ui.util.core.listener.RenderPlayer;
 import com.locydragon.ui.util.core.packet.FakeInteractMaker;
+import com.locydragon.ui.util.core.packet.FakePotionMaker;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -37,18 +38,22 @@ public class MapRenderObject {
 		who.setItemInHand(new ItemStack(Material.EMPTY_MAP));
 		FakeInteractMaker.createFakeInteract(who);
 		Schedulers.syncSafeTask(() -> {
+			RenderPlayer.addTo(who);
 			MapView map = Bukkit.getMap(who.getItemInHand().getDurability());
 			mapInterface.update();
-			for (MapRenderer renderer : map.getRenderers()) {
-				map.removeRenderer(renderer);
+			try {
+				for (MapRenderer renderer : map.getRenderers()) {
+					map.removeRenderer(renderer);
+				}
+			} catch (NullPointerException exc) {} finally {
+				map.setScale(MapView.Scale.FARTHEST);
+				if (!mapInterface.empty) {
+					map.addRenderer(mapInterface.render);
+				}
+				who.sendMap(map);
+				FakePotionMaker.make(who, (byte)14, (byte)3, (32767));
+				FakePotionMaker.make(who, (byte)15, (byte)3, (32767));
 			}
-			map.setScale(MapView.Scale.FARTHEST);
-			if (!mapInterface.empty) {
-				map.addRenderer(mapInterface.render);
-			}
-			who.sendMap(map);
-			RenderPlayer.addTo(who);
-			who.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 999999, 200));
 		});
 	}
 

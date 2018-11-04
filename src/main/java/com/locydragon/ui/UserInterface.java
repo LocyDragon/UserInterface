@@ -10,7 +10,9 @@ import com.locydragon.ui.commands.SubCommandBasic;
 import com.locydragon.ui.commands.sub.CloseInventorySub;
 import com.locydragon.ui.commands.sub.OpenInventorySub;
 import com.locydragon.ui.util.core.listener.HeldNoChangeListener;
+import com.locydragon.ui.util.core.listener.KeyListener;
 import com.locydragon.ui.util.core.listener.RenderPlayer;
+import com.locydragon.ui.util.core.listener.events.KeyNoListener;
 import com.locydragon.ui.util.core.packet.FakeInteractMaker;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -54,6 +56,8 @@ public class UserInterface extends JavaPlugin {
 	public void onEnable() {
 		getLogger().info("Welcome to you User Interface!Version: "+this.getDescription().getVersion());
 		Bukkit.getPluginManager().registerEvents(new HeldNoChangeListener(), this);
+		Bukkit.getPluginManager().registerEvents(new KeyListener(), this);
+		Bukkit.getPluginManager().registerEvents(new KeyNoListener(), this);
 		Bukkit.getPluginCommand("ui").setExecutor(new CommandBus());
 		FakeInteractMaker.manager = ProtocolLibrary.getProtocolManager();
 	}

@@ -7,14 +7,13 @@ import org.bukkit.map.MapRenderer;
 import org.bukkit.map.MapView;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 
 public class PictureRender extends MapRenderer {
-	private boolean rendered = false;
-	private Image picture = null;
+	private BufferedImage picture = null;
 
 	public PictureRender(File input) {
 		//super(false);
@@ -28,14 +27,14 @@ public class PictureRender extends MapRenderer {
 
 	@Override
 	public void render(MapView mapView, MapCanvas mapCanvas, Player player) {
-		//if (rendered) {
-			//player.sendMap(mapView);
-			//return;
-		//}
+		byte[] imageData = MapPalette.imageToBytes(this.picture);
 		for (int i = 0;i < mapCanvas.getCursors().size();i++) {
 			mapCanvas.getCursors().removeCursor(mapCanvas.getCursors().getCursor(i));
 		}
-		mapCanvas.drawImage(0, 0, this.picture);
-		rendered = true;
+		for (int x = 0;x < this.picture.getWidth();x++) {
+			for (int y = 0;y < this.picture.getHeight();y++) {
+				mapCanvas.setPixel(x, y, imageData[(y * this.picture.getWidth() + x)]);
+			}
+		}
 	}
 }

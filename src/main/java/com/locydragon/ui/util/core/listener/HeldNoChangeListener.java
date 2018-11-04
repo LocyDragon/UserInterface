@@ -7,7 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -22,13 +22,13 @@ public class HeldNoChangeListener implements Listener {
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
-	public void onInventoryOpen(InventoryOpenEvent e) {
-		if (RenderPlayer.has((Player)e.getPlayer())) {
+	public void onInventoryOpen(InventoryClickEvent e) {
+		if (RenderPlayer.has((Player)e.getWhoClicked())) {
 			e.setCancelled(true);
-			e.getPlayer().closeInventory();
+			((Player) e.getWhoClicked()).updateInventory();
 			Bukkit.getScheduler().runTaskLater(UserInterface.instance, () -> {
-				e.getPlayer().closeInventory();
-			}, 1);
+				e.getWhoClicked().closeInventory();
+			}, 3);
 		}
 	}
 

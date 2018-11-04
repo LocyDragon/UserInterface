@@ -3,6 +3,7 @@ package com.locydragon.ui;
 import com.locydragon.ui.util.MapInterface;
 import com.locydragon.ui.util.core.MapRenderObject;
 import com.locydragon.ui.util.core.listener.RenderPlayer;
+import com.locydragon.ui.util.core.packet.FakePotionMaker;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -25,7 +26,8 @@ public class UserInterfaceAPI {
 		MapRenderObject.renderingPlayer.remove(who.getName().toLowerCase());
 		RenderPlayer.remove(who);
 		who.updateInventory();
-		who.removePotionEffect(PotionEffectType.BLINDNESS);
+		FakePotionMaker.remove(who, (byte)14);
+		FakePotionMaker.remove(who, (byte)15);
 	}
 
 	public static boolean openUI(Player who, String uiFileName) {
