@@ -6,37 +6,35 @@ import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import java.util.concurrent.ConcurrentHashMap;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 public class KeyListener implements Listener {
-	public static final Double ERGONOMICS = Math.pow(Math.E / 10, Math.sqrt(2));
-	public static ConcurrentLinkedQueue<String> doubleClickAnti = new ConcurrentLinkedQueue<>();
-	public static Executor pool = Executors.newCachedThreadPool();
+	public static Double ERGONOMICS = Math.pow(Math.E / 9, Math.sqrt(3));
+	private static ConcurrentHashMap<String,Long> timeStamp = new ConcurrentHashMap<>();
 	@EventHandler
 	public void onMove(PlayerMoveEvent e) {
-		if (RenderPlayer.has(e.getPlayer()) && !doubleClickAnti.contains(e.getPlayer().getName().toLowerCase())) {
+		if (RenderPlayer.has(e.getPlayer())) {
 			if (e.getTo().getZ() - e.getFrom().getZ() > ERGONOMICS) {
-				Bukkit.getPluginManager().callEvent(new KeyNoEvent(e.getPlayer(), KeyNo.W));
+				callEventWithTimeStamp(new KeyNoEvent(e.getPlayer(), KeyNo.W), System.currentTimeMillis());
 			} else if (e.getFrom().getZ() - e.getTo().getZ() > ERGONOMICS) {
-				Bukkit.getPluginManager().callEvent(new KeyNoEvent(e.getPlayer(), KeyNo.S));
+				callEventWithTimeStamp(new KeyNoEvent(e.getPlayer(), KeyNo.S), System.currentTimeMillis());
 			} else if (e.getTo().getX() - e.getFrom().getX() > ERGONOMICS) {
-				Bukkit.getPluginManager().callEvent(new KeyNoEvent(e.getPlayer(), KeyNo.A));
+				callEventWithTimeStamp(new KeyNoEvent(e.getPlayer(), KeyNo.A), System.currentTimeMillis());
 			} else if (e.getFrom().getX() - e.getTo().getX() > ERGONOMICS) {
-				Bukkit.getPluginManager().callEvent(new KeyNoEvent(e.getPlayer(), KeyNo.D));
+				callEventWithTimeStamp(new KeyNoEvent(e.getPlayer(), KeyNo.D), System.currentTimeMillis());
 			}
 			e.getPlayer().teleport(e.getFrom());
-			doubleClickAnti.add(e.getPlayer().getName().toLowerCase());
-			pool.execute(() -> {
-				try {
-					Thread.sleep((long) (ERGONOMICS * 2000));
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-				doubleClickAnti.remove(e.getPlayer().getName().toLowerCase());
-			});
 		}
+	}
+
+	private static void callEventWithTimeStamp(KeyNoEvent e, long timeStamp) {
+		if (KeyListener.timeStamp.keySet().contains(e.getPlayer().getName().toLowerCase())) {
+			if (timeStamp - KeyListener.timeStamp.get(e.getPlayer().getName().toLowerCase()) < 350) {
+				return;
+			}
+		}
+		Bukkit.getPluginManager().callEvent(e);
+		KeyListener.timeStamp.put(e.getPlayer().getName().toLowerCase(), timeStamp);
 	}
 }
